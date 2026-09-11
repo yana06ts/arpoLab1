@@ -54,5 +54,5 @@ jobs:
           BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
         run: |
           echo "=== Начало процесса зеркалирования ==="
-          git push --force https://x-access-token:${BACKUP_TOKEN}@github.com/yana06ts/arpoLab2.git master
+          git push --force https://x-access-token:${BACKUP_TOKEN}@github.com/yana06ts/arpoLab2.git main
           echo "=== Код успешно продублирован ==="
