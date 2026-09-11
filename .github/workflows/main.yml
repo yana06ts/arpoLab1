@@ -4,7 +4,7 @@ name: Unity 2D Platformer CI/CD
 # Условие запуска: реагировать на любой push в главную ветку master
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   # ЗАДАЧА 1: Быстрая диагностика структуры проекта (Sanity Check)
