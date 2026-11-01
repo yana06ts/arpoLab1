@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-11-01T09:21:00.171Z",
+  "assets": [
+    {
+      "url": "http://127.0.0.1:8081/Build/WebGL.framework.js.gz",
+      "status": 200,
+      "headers": {
+        "content-encoding": "gzip",
+        "etag": "\"6ae7042b-15902\"",
+        "connection": "keep-alive",
+        "accept-ranges": "bytes",
+        "content-length": "88322",
+        "date": "Sun, 01 Nov 2026 09:20:50 GMT",
+        "content-type": "application/javascript",
+        "last-modified": "Sun, 01 Nov 2026 09:19:39 GMT",
+        "server": "nginx/1.31.8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:8081/Build/WebGL.data.gz",
+      "status": 200,
+      "headers": {
+        "content-encoding": "gzip",
+        "etag": "\"6ae70427-7d72b9\"",
+        "connection": "keep-alive",
+        "accept-ranges": "bytes",
+        "content-length": "8221369",
+        "date": "Sun, 01 Nov 2026 09:20:50 GMT",
+        "content-type": "application/octet-stream",
+        "last-modified": "Sun, 01 Nov 2026 09:19:35 GMT",
+        "server": "nginx/1.31.8"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:8081/Build/WebGL.wasm.gz",
+      "status": 200,
+      "headers": {
+        "content-encoding": "gzip",
+        "etag": "\"6ae7042a-b774aa\"",
+        "connection": "keep-alive",
+        "accept-ranges": "bytes",
+        "content-length": "12022954",
+        "date": "Sun, 01 Nov 2026 09:20:50 GMT",
+        "content-type": "application/wasm",
+        "last-modified": "Sun, 01 Nov 2026 09:19:38 GMT",
+        "server": "nginx/1.31.8"
+      }
+    }
+  ],
+  "errors": [],
+  "canvas": {
+    "width": 960,
+    "height": 600
+  },
+  "missingStatus": 404,
+  "decodedHashesMatch": true
+}

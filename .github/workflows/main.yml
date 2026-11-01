@@ -1,58 +1,79 @@
-# Название всего автоматического процесса
 name: Unity 2D Platformer CI/CD
 
-# Условие запуска: реагировать на любой push в главную ветку master
 on:
   push:
-    branches: [ "main" ]
+    branches: [main, LR3]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  # ЗАДАЧА 1: Быстрая диагностика структуры проекта (Sanity Check)
   sanity_check:
-    runs-on: ubuntu-latest # Запуск на бесплатном облачном сервере Linux
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # Скачиваем код проекта на облачный сервер
-
-      - name: Check Unity Directories
+        uses: actions/checkout@v4
+      - name: Check Unity project and deployment files
         run: |
-          echo "=== Проверка наличия метаданных Unity ==="
-          if [ -d "ProjectSettings" ]; then echo "ProjectSettings найден."; else echo "Ошибка!" && exit 1; fi
-          if [ -d "Packages" ]; then echo "Packages найден."; else echo "Ошибка!" && exit 1; fi
+          test -d ProjectSettings
+          test -d Packages
+          test -f Assets/Editor/BuildManager.cs
+          test -f Dockerfile
+          test -f nginx.conf
+          find Assets/ -name '*Controller.cs' -print
+          find Assets/ -name 'BuildManager.cs' -print
 
-      - name: Locate 2D Platformer Scripts
-        run: |
-          echo "=== Поиск C# скриптов в папке Assets ==="
-          find Assets/ -name "Controller.cs" -print
-          find Assets/ -name "BuildManager.cs" -print
-
-  # ЗАДАЧА 2: Автоматическое зеркалирование в резервный репозиторий
   mirror_repo:
-    needs: sanity_check # Начнется только после того, как успешно пройдет первая задача
-    if: github.repository == 'yana06ts/arpoLab1' # Только в оригинальном репо, чтобы избежать цикла в backup
+    needs: sanity_check
+    if: github.repository == 'yana06ts/arpoLab1'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout full history
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Скачиваем полную историю коммитов для корректного зеркалирования
-          persist-credentials: false # Отключаем credential helper — чтобы GITHUB_TOKEN не перекрывал PAT
-
-      - name: Verify token is set
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Push current branch to backup repository
         env:
           BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
         run: |
-          if [ -z "$BACKUP_TOKEN" ]; then
-            echo "=== ОШИБКА: BACKUP_TOKEN is empty! Create a PAT with scopes [repo, workflow] ==="
-            exit 1
-          else
-            echo "=== BACKUP_TOKEN is set (length: ${#BACKUP_TOKEN}) ==="
+          test -n "$BACKUP_TOKEN" || { echo "BACKUP_TOKEN is not configured"; exit 1; }
+          BASIC_AUTH=$(printf 'x-access-token:%s' "$BACKUP_TOKEN" | base64 -w0)
+          echo "::add-mask::$BASIC_AUTH"
+          git -c http.extraheader="AUTHORIZATION: basic $BASIC_AUTH" push \
+            https://github.com/yana06ts/arpoLab2.git "HEAD:refs/heads/$GITHUB_REF_NAME"
+
+  build_docker_image:
+    needs: sanity_check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Create compressed placeholders for Docker
+        run: |
+          mkdir -p Builds/WebGL/Build
+          if [ -z "$(ls -A Builds/WebGL/Build)" ]; then
+            printf '<h3>LR3: Unity compressed cloud placeholder</h3><p>This image tests delivery. The real Unity cloud build is added in a later lab.</p>' > Builds/WebGL/index.html
+            printf '// LR3 placeholder\n' | gzip -c > Builds/WebGL/Build/game.framework.js.gz
+            printf 'LR3 placeholder\n' | gzip -c > Builds/WebGL/Build/game.wasm.gz
+            printf 'LR3 placeholder\n' | gzip -c > Builds/WebGL/Build/game.data.gz
           fi
-
-      - name: Push to Backup Repository
-        env:
-          BACKUP_TOKEN: ${{ secrets.BACKUP_TOKEN }}
-        run: |
-          echo "=== Начало процесса зеркалирования ==="
-          git push --force https://x-access-token:${BACKUP_TOKEN}@github.com/yana06ts/arpoLab2.git main
-          echo "=== Код успешно продублирован ==="
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push compressed Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/yana06ts/platformer-game:latest
+            ghcr.io/yana06ts/platformer-game:${{ github.sha }}

@@ -1,0 +1,6 @@
+**
+!Dockerfile
+!nginx.conf
+!Builds/
+!Builds/WebGL/
+!Builds/WebGL/**
