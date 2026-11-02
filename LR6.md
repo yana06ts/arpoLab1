@@ -16,8 +16,6 @@
 https://api.telegram.org/bot<TOKEN>/getUpdates
 ```
 
-<!-- Сюда вставить скриншот диалога с @BotFather (токен замазать) -->
-
 ## 2. Секреты репозитория
 
 Settings → Secrets and variables → Actions:
@@ -29,7 +27,7 @@ Settings → Secrets and variables → Actions:
 
 Токен и `chat_id` не встречаются ни в `main.yml`, ни в других файлах проекта. В логе Actions их значения заменяются на `***`. При утечке токен нужно отозвать командой `/revoke` у @BotFather.
 
-<!-- Сюда вставить скриншот списка секретов -->
+![Секреты репозитория](docs/LR6/screenshots/05-secrets.jpg)
 
 ## 3. Задача notify
 
@@ -59,30 +57,42 @@ curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
 
 ## 4. Проверка двух сценариев
 
-**Успешный прогон.** Все задачи зелёные. Бот присылает сообщение:
+**Успешный прогон (#8, коммит `70dfef3`).** Все семь задач зелёные, `notify` отправил сообщение:
 
 ```text
 ✅ Сборка arpoLab1 завершена успешно
 Ветка: LR6
-Коммит: <заголовок коммита>
+Коммит: LR6: Telegram notifications for pipeline (notify job with if: always())
 Автор коммита: yana06ts
 Игра доступна: https://yana06ts.github.io/arpoLab1/
-Прогон: https://github.com/yana06ts/arpoLab1/actions/runs/<id>
+Прогон: https://github.com/yana06ts/arpoLab1/actions/runs/41469956004
 ```
 
-**Аварийный прогон.** В шаг `Check Unity project and deployment files` временно добавлена ошибочная команда `test -d NoSuchFolder`, после чего выполнен push. `sanity_check` падает, остальные задачи пропускаются, а `notify` остаётся зелёной и присылает сообщение:
+![Прогон #8: все задачи зелёные, notify отправил сообщение](docs/LR6/screenshots/01-actions-success.jpg)
+
+**Аварийный прогон (#9, коммит `14c95d7`).** В шаг проверки структуры временно добавлена команда `test -d NoSuchFolder` (такой папки нет). `sanity_check` упал, остальные задачи пропущены, а `notify` выполнился и остался зелёным:
 
 ```text
 ❌ Сборка arpoLab1 упала на задаче sanity_check
 Ветка: LR6
-Коммит: <заголовок коммита>
+Коммит: LR6 test: deliberately break sanity_check to check Telegram failure alert
 Автор коммита: yana06ts
-Лог прогона: https://github.com/yana06ts/arpoLab1/actions/runs/<id>
+Лог прогона: https://github.com/yana06ts/arpoLab1/actions/runs/41474471654
 ```
 
-После проверки ошибочная строка удалена, следующий прогон снова зелёный.
+![Прогон #9: sanity_check упал, notify зелёный](docs/LR6/screenshots/02-actions-failure.jpg)
 
-<!-- Сюда вставить скриншоты: оба сообщения в Telegram на телефоне; зелёный и красный прогоны в Actions; лог notify со звёздочками -->
+**Сообщения на телефоне.** Все три сообщения пришли в чат с ботом @yana06tsbot:
+
+<img src="docs/LR6/screenshots/03-telegram-phone.png" alt="Сообщения бота на телефоне" width="360">
+
+**Маскирование секретов в логе.** В логе задачи `notify` переменные `BOT_TOKEN` и `CHAT_ID` показаны как `***`, а последняя строка `Telegram ok: true` — ответ Telegram:
+
+![Лог notify: BOT_TOKEN и CHAT_ID скрыты](docs/LR6/screenshots/04-notify-log-masked.jpg)
+
+**Возврат в рабочее состояние (#10, коммит `62d8c80`).** Ошибочная строка отменена через `git revert`, прогон снова полностью зелёный. Бот прислал ещё одно сообщение ✅.
+
+Если бы Telegram не принял сообщение (неверный токен или `chat_id`), шаг отправки завершился бы с ошибкой и `notify` стал бы красным. Зелёный `notify` во всех трёх прогонах подтверждает, что Telegram ответил `"ok": true`.
 
 ## Как это работает простыми словами
 

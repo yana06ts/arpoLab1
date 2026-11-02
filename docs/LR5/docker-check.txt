@@ -1,0 +1,57 @@
+--- docker version
+client 29.9.1 / server 29.9.1
+--- docker pull ghcr.io/yana06ts/platformer-game:62d8c80243fcd74f9984a22e8332463c90e8db25
+62d8c80243fcd74f9984a22e8332463c90e8db25: Pulling from yana06ts/platformer-game
+Digest: sha256:4f3fec3828958e2a541e85b3c59633f0aa0a39c42cc46e9f0a4b6ebd5178354f
+Status: Downloaded newer image for ghcr.io/yana06ts/platformer-game:62d8c80243fcd74f9984a22e8332463c90e8db25
+ghcr.io/yana06ts/platformer-game:62d8c80243fcd74f9984a22e8332463c90e8db25
+--- docker run -d -p 127.0.0.1:8081:80 --name platformer ghcr.io/yana06ts/platformer-game:62d8c80243fcd74f9984a22e8332463c90e8db25
+3bc5733865c28e53dc91632815d835df90edcce0518e38303701731e698e41dd
+--- docker ps
+ghcr.io/yana06ts/platformer-game:62d8c80243fcd74f9984a22e8332463c90e8db25  Up 3 seconds  127.0.0.1:8081->80/tcp
+--- docker exec platformer ls -la /usr/share/nginx/html/Build
+total 19896
+drwxr-xr-x    2 root     root          4096 Nov  2 15:54 .
+drwxr-xr-x    1 root     root          4096 Nov  2 15:54 ..
+-rw-r--r--    1 root     root       8204127 Nov  2 15:54 WebGL.data.unityweb
+-rw-r--r--    1 root     root         88320 Nov  2 15:54 WebGL.framework.js.unityweb
+-rw-r--r--    1 root     root         47866 Nov  2 15:54 WebGL.loader.js
+-rw-r--r--    1 root     root      12021354 Nov  2 15:54 WebGL.wasm.unityweb
+--- curl -I -H "Accept-Encoding: gzip" http://localhost:8081/Build/WebGL.wasm.unityweb 
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Date: Mon, 02 Nov 2026 16:07:42 GMT
+Content-Type: application/wasm
+Content-Length: 12021354
+Last-Modified: Mon, 02 Nov 2026 15:54:26 GMT
+Connection: keep-alive
+ETag: "6ae8b232-b76e6a"
+Content-Encoding: gzip
+Accept-Ranges: bytes
+
+--- curl -I -H "Accept-Encoding: gzip" http://localhost:8081/Build/WebGL.framework.js.unityweb 
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Date: Mon, 02 Nov 2026 16:07:43 GMT
+Content-Type: application/javascript
+Content-Length: 88320
+Last-Modified: Mon, 02 Nov 2026 15:54:26 GMT
+Connection: keep-alive
+ETag: "6ae8b232-15900"
+Content-Encoding: gzip
+Accept-Ranges: bytes
+
+--- curl -I -H "Accept-Encoding: gzip" http://localhost:8081/Build/WebGL.data.unityweb 
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Date: Mon, 02 Nov 2026 16:07:43 GMT
+Content-Type: application/octet-stream
+Content-Length: 8204127
+Last-Modified: Mon, 02 Nov 2026 15:54:26 GMT
+Connection: keep-alive
+ETag: "6ae8b232-7d2f5f"
+Content-Encoding: gzip
+Accept-Ranges: bytes
+
+--- curl index
+index.html HTTP 200

@@ -53,7 +53,11 @@
 
 **Результат теста по варианту 16: Passed.** Отчёты NUnit: [editmode-results.xml](docs/LR4/test-results/editmode-results.xml), [playmode-results.xml](docs/LR4/test-results/playmode-results.xml).
 
-<!-- Сюда вставить скриншот зелёного окна Window → General → Test Runner -->
+Тесты запускались тем же Unity Test Runner, что и в окне Window → General → Test Runner, но из командной строки (`-runTests`). Поэтому результат сохранён в виде отчётов NUnit, а не скриншота окна.
+
+### Тесты в репозитории
+
+![Папка Assets/Tests/PlayMode в ветке LR4](docs/LR4/screenshots/03-tests-folder.jpg)
 
 ## 3. Тесты в GitHub Actions
 
@@ -74,11 +78,28 @@ GitHub → Settings → Secrets and variables → Actions:
 - `UNITY_EMAIL` — email аккаунта Unity;
 - `UNITY_PASSWORD` — пароль аккаунта Unity. Если аккаунт создан через Google или Apple, сначала задайте пароль. Двухфакторная аутентификация должна быть выключена.
 
+### Результат в облаке
+
+Первый прогон ветки `LR4` (#4) упал на `run_tests`: секреты Unity ещё не были добавлены, и редактор в контейнере не смог активировать лицензию. После добавления `UNITY_LICENSE`, `UNITY_EMAIL` и `UNITY_PASSWORD` тесты в облаке проходят. Проходят и в последующих ветках `LR5` и `LR6`, где эта же задача стоит перед сборкой.
+
+Секреты репозитория (значения скрыты GitHub):
+
+![Секреты репозитория](docs/LR6/screenshots/05-secrets.jpg)
+
+Фрагмент лога задачи `run_tests` в облаке: PlayMode 3/3 и EditMode 1/1 пройдены, Unity завершился с кодом 0. Для читаемости из лога оставлены только строки с результатами.
+
+![Лог run_tests: все тесты Passed](docs/LR4/screenshots/04-ci-test-log.png)
+
 ### Проверка защиты пайплайна
 
-Временно добавить в любой тест `Assert.AreEqual(1, 2);` и выполнить push. Задача `run_tests` станет красной, а сборка и публикация будут пропущены. Затем вернуть исправленный тест.
+1. В `PlayerTests.cs` временно добавлена строка `Assert.AreEqual(1, 2, "Демонстрация: тест специально сломан");` (коммит `400a7dd`).
+2. Прогон #11 красный: `run_tests` упал, а `mirror_repo` и `build_docker_image` **пропущены**. Сломанный код не попал ни в резервный репозиторий, ни в GHCR.
 
-<!-- Сюда вставить скриншоты: зелёный run_tests с артефактом test-results; красный run_tests с пропущенными задачами -->
+![Прогон #11: run_tests упал, остальные задачи пропущены](docs/LR4/screenshots/02-actions-tests-red.jpg)
+
+3. Изменение отменено через `git revert` (коммит `388a5c0`). Прогон #12 снова полностью зелёный:
+
+![Прогон #12: все задачи зелёные](docs/LR4/screenshots/01-actions-tests-green.jpg)
 
 ## Как это работает простыми словами
 

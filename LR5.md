@@ -68,14 +68,57 @@ docker stop platformer; docker rm platformer
 
 ## 5. Проверка результатов
 
-1. Во вкладке Actions все шесть задач зелёные. `build_game` стартует после `run_tests`. В логе `build_game` есть строка `[CI/CD] УСПЕХ!`.
-2. Артефакт `WebGL-Build` содержит `index.html`, `Build/WebGL.loader.js`, `Build/*.unityweb` и `TemplateData`.
-3. Ветка `gh-pages` содержит `index.html`, `Build` и `TemplateData`.
-4. На Pages видна полоса загрузки Unity, персонаж бегает, прыгает и собирает монеты.
-5. В DevTools → Network файлы отдаются с кодом 200, в консоли нет ошибок распаковки.
-6. В Packages профиля есть `platformer-game` с тегами `latest` и SHA последнего коммита.
+**1. Пайплайн.** Первый прогон ветки `LR5` (#6) упал на `run_tests`, потому что ещё не было секретов Unity. После их добавления прогон #7 полностью зелёный: `build_game` стартовал только после `run_tests`, а `build_docker_image` и `deploy_to_pages` выполнились после `build_game`. Сборка в облаке заняла около 22 минут, весь прогон — 27,5 минуты.
 
-<!-- Сюда вставить скриншоты: граф задач Actions, лог build_game, игра на Pages, Network, Packages -->
+![Прогон #7: все задачи ЛР5 зелёные](docs/LR5/screenshots/01-actions-pipeline.jpg)
+
+В логе `build_game` есть строки метода `BuildManager.BuildWebGL` из ЛР1. Это значит, что сборку выполнил именно он, а не стандартная сборка GameCI. Время сборки 703,68 с, размер 20 380 970 байт. Ниже — фрагмент лога (прогон #8 ветки LR6, тот же пайплайн):
+
+![Лог build_game: [CI/CD] УСПЕХ!](docs/LR5/screenshots/05-build-log-success.png)
+
+**2–3. Артефакт и ветка gh-pages.** В ветку `gh-pages` выгружены `index.html`, `Build`, `TemplateData` и `.nojekyll`. Внутри `Build` лежат настоящие файлы, а не пустые заглушки:
+
+| Файл | Размер |
+| --- | ---: |
+| WebGL.wasm.unityweb | 12 021 354 байт |
+| WebGL.data.unityweb | 8 204 112 байт |
+| WebGL.framework.js.unityweb | 88 320 байт |
+| WebGL.loader.js | 47 866 байт |
+
+![Ветка gh-pages](docs/LR5/screenshots/02-gh-pages-branch.jpg)
+
+**4. Игра на GitHub Pages.** Pages включён в Settings → Pages (источник `gh-pages`, `/ (root)`):
+
+![Settings → Pages](docs/LR5/screenshots/06-pages-settings.jpg)
+
+Игра по адресу https://yana06ts.github.io/arpoLab1/ загружается, персонаж управляется стрелками:
+
+![Игра на GitHub Pages](docs/LR5/screenshots/03-pages-game.jpg)
+
+**5. Сеть и консоль.** Все файлы игры загружаются с кодом 200, ошибок распаковки в консоли нет:
+
+```text
+GET /arpoLab1/                              → 200
+GET /arpoLab1/Build/WebGL.loader.js         → 200
+GET /arpoLab1/Build/WebGL.framework.js.unityweb → 200
+GET /arpoLab1/Build/WebGL.wasm.unityweb     → 200
+GET /arpoLab1/Build/WebGL.data.unityweb     → 200
+GET /arpoLab1/TemplateData/*                → 200
+Console errors: нет
+```
+
+**6. Docker-образ из GHCR.** Образ скачан из реестра и запущен локально на порту 8081. Nginx отдаёт файлы игры с `Content-Encoding: gzip` и правильным `Content-Type`. Полный вывод команд — в [docs/LR5/docker-check.txt](docs/LR5/docker-check.txt), фрагмент:
+
+```text
+--- curl -I -H "Accept-Encoding: gzip" http://localhost:8081/Build/WebGL.wasm.unityweb
+HTTP/1.1 200 OK
+Server: nginx/1.31.8
+Content-Type: application/wasm
+Content-Length: 12021354
+Content-Encoding: gzip
+```
+
+![Игра из Docker-контейнера на localhost:8081](docs/LR5/screenshots/04-docker-game.jpg)
 
 ## Как это работает простыми словами
 

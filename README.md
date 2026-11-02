@@ -37,7 +37,11 @@ docker rm unity_compressed_container
 - `Assets/Tests/EditMode` — EditMode-тесты сцены;
 - `Assets/Tests/PlayMode` — PlayMode-тесты здоровья и зоны победы (вариант 16).
 
-Локальный запуск: Window → General → Test Runner → Run All или [docs/LR4/run_tests_local.bat](docs/LR4/run_tests_local.bat).
+Локальный запуск: Window → General → Test Runner → Run All или [docs/LR4/run_tests_local.bat](docs/LR4/run_tests_local.bat). Результат: EditMode 1/1, PlayMode 3/3, включая тест варианта 16.
+
+Если тест падает, сборка и публикация не запускаются:
+
+![Тест упал — mirror_repo и build_docker_image пропущены](docs/LR4/screenshots/02-actions-tests-red.jpg)
 
 ## Что хранится в облаке (ЛР №5)
 
@@ -59,4 +63,16 @@ docker rm unity_compressed_container
 
 Нужные секреты: `UNITY_LICENSE`, `UNITY_EMAIL`, `UNITY_PASSWORD`, `BACKUP_TOKEN`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
 
-Скриншоты ЛР3: [docs/LR3/screenshots](docs/LR3/screenshots).
+Запуск опубликованного образа с игрой:
+
+```powershell
+docker run -d -p 127.0.0.1:8081:80 --name platformer ghcr.io/yana06ts/platformer-game:latest
+```
+
+### Пайплайн и игра
+
+![Полный пайплайн: все задачи зелёные](docs/LR6/screenshots/01-actions-success.jpg)
+
+![Игра на GitHub Pages](docs/LR5/screenshots/03-pages-game.jpg)
+
+Скриншоты по работам: [ЛР3](docs/LR3/screenshots), [ЛР4](docs/LR4/screenshots), [ЛР5](docs/LR5/screenshots), [ЛР6](docs/LR6/screenshots).
