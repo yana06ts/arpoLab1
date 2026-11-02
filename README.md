@@ -9,6 +9,7 @@
 | ЛР №3 | Gzip, Nginx, Docker и GHCR | [LR3.md](LR3.md) |
 | ЛР №4 | Unity Test Runner в CI/CD (вариант 16) | [LR4.md](LR4.md) |
 | ЛР №5 | Облачная сборка WebGL, GitHub Pages, Docker с игрой | [LR5.md](LR5.md) |
+| ЛР №6 | Мониторинг пайплайна, webhooks и Telegram-оповещения | [LR6.md](LR6.md) |
 
 ## Локальный запуск
 
@@ -52,8 +53,10 @@ docker rm unity_compressed_container
 - `build_docker_image` — образ `ghcr.io/yana06ts/platformer-game` с настоящей игрой под тегами `latest` и SHA;
 - `deploy_to_pages` — публикация в ветку `gh-pages`.
 
+В конце всегда выполняется `notify` (ЛР №6): Telegram-бот присылает результат прогона, а при ошибке — имя упавшей задачи.
+
 Игра: https://yana06ts.github.io/arpoLab1/ (Pages включается один раз: Settings → Pages → `gh-pages`).
 
-Нужные секреты: `UNITY_LICENSE`, `UNITY_EMAIL`, `UNITY_PASSWORD`, `BACKUP_TOKEN`.
+Нужные секреты: `UNITY_LICENSE`, `UNITY_EMAIL`, `UNITY_PASSWORD`, `BACKUP_TOKEN`, `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`.
 
 Скриншоты ЛР3: [docs/LR3/screenshots](docs/LR3/screenshots).

@@ -4,7 +4,7 @@ name: Unity 2D Platformer CI/CD
 # Запуск: push в main и в ветки лабораторных, а также вручную из вкладки Actions
 on:
   push:
-    branches: [main, LR3, LR4, LR5]
+    branches: [main, LR3, LR4, LR5, LR6]
   workflow_dispatch:
 
 permissions:
@@ -203,3 +203,53 @@ jobs:
         with:
           folder: Builds/WebGL
           branch: gh-pages
+
+  # ЭТАП 6 (ЛР №6): Telegram-оповещение о результате пайплайна (webhook в Telegram Bot API)
+  notify:
+    needs: [sanity_check, run_tests, build_game, mirror_repo, build_docker_image, deploy_to_pages]
+    if: always() # аналог after_script: выполняется при любом исходе остальных задач
+    runs-on: ubuntu-latest
+    steps:
+      # Находим первую задачу, которая завершилась не успешно
+      - name: Determine pipeline status
+        id: status
+        run: |
+          if   [ "${{ needs.sanity_check.result }}" != "success" ]; then echo "stage=sanity_check" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.run_tests.result }}" != "success" ]; then echo "stage=run_tests" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.build_game.result }}" != "success" ]; then echo "stage=build_game" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.mirror_repo.result }}" != "success" ]; then echo "stage=mirror_repo" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.build_docker_image.result }}" != "success" ]; then echo "stage=build_docker_image" >> $GITHUB_OUTPUT
+          elif [ "${{ needs.deploy_to_pages.result }}" != "success" ]; then echo "stage=deploy_to_pages" >> $GITHUB_OUTPUT
+          else echo "stage=none" >> $GITHUB_OUTPUT
+          fi
+
+      # Токен бота и chat_id берутся только из секретов: в логе они маскируются звёздочками
+      - name: Send Telegram notification
+        env:
+          BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          STAGE: ${{ steps.status.outputs.stage }}
+          SITE_URL: "https://yana06ts.github.io/arpoLab1/"
+          RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          AUTHOR: ${{ github.event.head_commit.author.name || github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          test -n "$BOT_TOKEN" || { echo "Секрет TELEGRAM_BOT_TOKEN не задан"; exit 1; }
+          test -n "$CHAT_ID" || { echo "Секрет TELEGRAM_CHAT_ID не задан"; exit 1; }
+          COMMIT_TITLE=$(printf '%s' "$COMMIT_MSG" | head -n 1)
+          if [ "$STAGE" = "none" ]; then
+            TEXT=$(printf '✅ Сборка arpoLab1 завершена успешно\nВетка: %s\nКоммит: %s\nАвтор коммита: %s\nИгра доступна: %s\nПрогон: %s' \
+              "$BRANCH" "$COMMIT_TITLE" "$AUTHOR" "$SITE_URL" "$RUN_URL")
+          else
+            TEXT=$(printf '❌ Сборка arpoLab1 упала на задаче %s\nВетка: %s\nКоммит: %s\nАвтор коммита: %s\nЛог прогона: %s' \
+              "$STAGE" "$BRANCH" "$COMMIT_TITLE" "$AUTHOR" "$RUN_URL")
+          fi
+          # jq собирает корректный JSON: кавычки и переводы строк в тексте экранируются автоматически
+          PAYLOAD=$(jq -n --arg chat_id "$CHAT_ID" --arg text "$TEXT" '{chat_id: $chat_id, text: $text, disable_web_page_preview: true}')
+          RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+          # Печатаем только признак успеха, не весь ответ
+          echo "Telegram ok: $(echo "$RESPONSE" | jq -r '.ok')"
+          echo "$RESPONSE" | jq -e '.ok == true' > /dev/null || { echo "Ошибка Telegram: $(echo "$RESPONSE" | jq -r '.description')"; exit 1; }
