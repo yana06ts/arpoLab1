@@ -14,6 +14,9 @@ public class PlayerTests
     [Test]
     public void EditMode_PlayerTag_IsCorrect()
     {
+        // ЛР4, шаг 5.3: намеренно сломанная проверка для демонстрации защиты пайплайна
+        Assert.AreEqual(1, 2, "Демонстрация: тест специально сломан");
+
         // Открываем сцену игры, чтобы получить доступ к её объектам
         var scene = EditorSceneManager.OpenScene(MainScenePath, OpenSceneMode.Single);
         Assert.IsTrue(scene.IsValid(), "Ошибка: не удалось открыть сцену SampleScene!");
