@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -6,58 +6,58 @@ using static UnityEditor.PlayerSettings;
 
 public static class BuildManager
 {
-    // Путь для сохранения WebGL-версии игры
+    // РџСѓС‚СЊ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ WebGL-РІРµСЂСЃРёРё РёРіСЂС‹
     private static readonly string WebGLBuildPath =
     "Builds/WebGL";
     /// <summary>
-    /// Автоматический метод сборки игры под платформу WebGL
+    /// РђРІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РјРµС‚РѕРґ СЃР±РѕСЂРєРё РёРіСЂС‹ РїРѕРґ РїР»Р°С‚С„РѕСЂРјСѓ WebGL
     /// </summary>
     public static void BuildWebGL()
 
     {
-        Debug.Log("[CI/CD] Запущен автоматический процесс сборки WebGL...");
-        // 1. Получаем список сцен, включенных в настройки проекта(Build Settings)
+        Debug.Log("[CI/CD] Р—Р°РїСѓС‰РµРЅ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёР№ РїСЂРѕС†РµСЃСЃ СЃР±РѕСЂРєРё WebGL...");
+        // 1. РџРѕР»СѓС‡Р°РµРј СЃРїРёСЃРѕРє СЃС†РµРЅ, РІРєР»СЋС‡РµРЅРЅС‹С… РІ РЅР°СЃС‚СЂРѕР№РєРё РїСЂРѕРµРєС‚Р°(Build Settings)
         string[] levels = GetScenes();
         if (levels.Length == 0)
         {
-            Debug.LogError("[CI/CD] Ошибка: В Настройках Сборки(Build Settings) не найдено ни одной активной сцены!");
+            Debug.LogError("[CI/CD] РћС€РёР±РєР°: Р’ РќР°СЃС‚СЂРѕР№РєР°С… РЎР±РѕСЂРєРё(Build Settings) РЅРµ РЅР°Р№РґРµРЅРѕ РЅРё РѕРґРЅРѕР№ Р°РєС‚РёРІРЅРѕР№ СЃС†РµРЅС‹!");
             ExitWithCode(1);
             return;
         }
-        // 2. Конфигурируем параметры сборки
+        // 2. РљРѕРЅС„РёРіСѓСЂРёСЂСѓРµРј РїР°СЂР°РјРµС‚СЂС‹ СЃР±РѕСЂРєРё
         BuildPlayerOptions buildPlayerOptions = new
         BuildPlayerOptions
         {
             scenes = levels,
             locationPathName = WebGLBuildPath,
             target = BuildTarget.WebGL,
-            options = BuildOptions.None // Для отладочной сборки можно использовать BuildOptions.Development
+            options = BuildOptions.None // Р”Р»СЏ РѕС‚Р»Р°РґРѕС‡РЅРѕР№ СЃР±РѕСЂРєРё РјРѕР¶РЅРѕ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ BuildOptions.Development
         };
-        // 3. Запускаем компиляцию
+        // 3. Р—Р°РїСѓСЃРєР°РµРј РєРѕРјРїРёР»СЏС†РёСЋ
         BuildReport report =
         BuildPipeline.BuildPlayer(buildPlayerOptions);
         BuildSummary summary = report.summary;
-        // 4. Анализируем результаты
+        // 4. РђРЅР°Р»РёР·РёСЂСѓРµРј СЂРµР·СѓР»СЊС‚Р°С‚С‹
         if (summary.result == BuildResult.Succeeded)
         {
-            Debug.Log($"[CI/CD] УСПЕХ! WebGL билд успешно создан.");
-            Debug.Log($"[CI/CD] Время сборки: { summary.totalTime.TotalSeconds:F2} сек.Размер: { summary.totalSize}  байт.");
+            Debug.Log($"[CI/CD] РЈРЎРџР•РҐ! WebGL Р±РёР»Рґ СѓСЃРїРµС€РЅРѕ СЃРѕР·РґР°РЅ.");
+            Debug.Log($"[CI/CD] Р’СЂРµРјСЏ СЃР±РѕСЂРєРё: { summary.totalTime.TotalSeconds:F2} СЃРµРє.Р Р°Р·РјРµСЂ: { summary.totalSize}  Р±Р°Р№С‚.");
         ExitWithCode(0);
         }
         else
         {
 
-            Debug.LogError($"[CI/CD] ОШИБКА СБОРКИ! Количество ошибок: { summary.totalErrors} ");
+            Debug.LogError($"[CI/CD] РћРЁРР‘РљРђ РЎР‘РћР РљР! РљРѕР»РёС‡РµСЃС‚РІРѕ РѕС€РёР±РѕРє: { summary.totalErrors} ");
         ExitWithCode(1);
         }
     }
     /// <summary>
-    /// Вспомогательный метод для сбора всех активных сцен из проекта
+    /// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ СЃР±РѕСЂР° РІСЃРµС… Р°РєС‚РёРІРЅС‹С… СЃС†РµРЅ РёР· РїСЂРѕРµРєС‚Р°
 /// </summary>
 private static string[] GetScenes()
     {
         var editorScenes = EditorBuildSettings.scenes;
-        // Считаем только те сцены, у которых стоит галочка "активна"
+        // РЎС‡РёС‚Р°РµРј С‚РѕР»СЊРєРѕ С‚Рµ СЃС†РµРЅС‹, Сѓ РєРѕС‚РѕСЂС‹С… СЃС‚РѕРёС‚ РіР°Р»РѕС‡РєР° "Р°РєС‚РёРІРЅР°"
     int activeCount = 0;
         foreach (var scene in editorScenes)
         {
@@ -76,11 +76,11 @@ private static string[] GetScenes()
         return scenePaths;
     }
     /// <summary>
-    /// Корректное завершение процесса Unity в зависимости от режима запуска
+    /// РљРѕСЂСЂРµРєС‚РЅРѕРµ Р·Р°РІРµСЂС€РµРЅРёРµ РїСЂРѕС†РµСЃСЃР° Unity РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЂРµР¶РёРјР° Р·Р°РїСѓСЃРєР°
 /// </summary>
 private static void ExitWithCode(int code)
     {
-        // Если Unity запущена в batchmode (из консоли) — принудительно закрываем редактор с кодом возврата
+        // Р•СЃР»Рё Unity Р·Р°РїСѓС‰РµРЅР° РІ batchmode (РёР· РєРѕРЅСЃРѕР»Рё) вЂ” РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ Р·Р°РєСЂС‹РІР°РµРј СЂРµРґР°РєС‚РѕСЂ СЃ РєРѕРґРѕРј РІРѕР·РІСЂР°С‚Р°
     if (Environment.CommandLine.Contains("-batchmode"))
         {
             EditorApplication.Exit(code);

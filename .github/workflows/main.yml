@@ -1,22 +1,26 @@
-# Состояние .github/workflows/main.yml на этапе ЛР №4 (до добавления build_game из ЛР №5)
+# Название всего автоматического процесса
 name: Unity 2D Platformer CI/CD
 
+# Запуск: push в main и в ветки лабораторных, а также вручную из вкладки Actions
 on:
   push:
-    branches: [main, LR3, LR4]
+    branches: [main, LR3, LR4, LR5]
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  # ЗАДАЧА 1: быстрая диагностика структуры проекта (Sanity Check)
   sanity_check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
       - name: Check Unity project and deployment files
         run: |
+          echo "=== Проверка наличия метаданных Unity и файлов доставки ==="
           test -d ProjectSettings
           test -d Packages
           test -f Assets/Editor/BuildManager.cs
@@ -27,6 +31,7 @@ jobs:
           test -f nginx.conf
           find Assets/ -name '*Controller.cs' -print
           find Assets/ -name 'BuildManager.cs' -print
+          find Assets/Tests -name '*.cs' -print
 
   # ЭТАП 2 (ЛР №4): автоматический запуск тестов Unity (EditMode + PlayMode)
   run_tests:
@@ -76,6 +81,48 @@ jobs:
           name: test-results
           path: artifacts/
 
+  # ЭТАП 3 (ЛР №5): настоящая компиляция WebGL-игры в облаке
+  build_game:
+    needs: run_tests # запускается только если все тесты ЛР №4 прошли
+    runs-on: ubuntu-latest
+    outputs:
+      build_status: ${{ job.status }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-Build-${{ hashFiles('Packages/packages-lock.json', 'Assets/**/*.asmdef') }}
+
+      # Облачный компилятор Unity 6 от GameCI вызывает метод из ЛР №1
+      - name: Build WebGL Player
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+          buildMethod: BuildManager.BuildWebGL
+          unityVersion: 6000.3.2f1
+
+      - name: Check build output
+        run: |
+          ls -la Builds/WebGL Builds/WebGL/Build
+          test -f Builds/WebGL/index.html
+
+      # Настоящие скомпилированные файлы передаются следующим задачам через артефакт
+      - name: Upload WebGL Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: WebGL-Build
+          path: Builds/WebGL
+
+  # ЗАДАЧА: копирование ветки в резервный репозиторий (ЛР №2), только после успешных тестов
   mirror_repo:
     needs: run_tests
     if: github.repository == 'yana06ts/arpoLab1'
@@ -96,8 +143,9 @@ jobs:
           git -c http.extraheader="AUTHORIZATION: basic $BASIC_AUTH" push \
             https://github.com/yana06ts/arpoLab2.git "HEAD:refs/heads/$GITHUB_REF_NAME"
 
+  # ЭТАП 4 (ЛР №5): Docker-образ с НАСТОЯЩЕЙ игрой вместо заглушек
   build_docker_image:
-    needs: run_tests # Docker собирается ТОЛЬКО если тесты прошли
+    needs: build_game
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -105,22 +153,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Create compressed placeholders for Docker
-        run: |
-          mkdir -p Builds/WebGL/Build
-          if [ -z "$(ls -A Builds/WebGL/Build)" ]; then
-            printf '<h3>LR3: Unity compressed cloud placeholder</h3><p>This image tests delivery. The real Unity cloud build is added in a later lab.</p>' > Builds/WebGL/index.html
-            printf '// LR3 placeholder\n' | gzip -c > Builds/WebGL/Build/game.framework.js.gz
-            printf 'LR3 placeholder\n' | gzip -c > Builds/WebGL/Build/game.wasm.gz
-            printf 'LR3 placeholder\n' | gzip -c > Builds/WebGL/Build/game.data.gz
-          fi
+
+      # Вместо заглушек из ЛР №3 скачиваем живой билд из задачи build_game
+      - name: Download WebGL Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WebGL-Build
+          path: Builds/WebGL
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Build and push compressed Docker image
+
+      - name: Build and push Docker image with the real game
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -129,3 +177,29 @@ jobs:
           tags: |
             ghcr.io/yana06ts/platformer-game:latest
             ghcr.io/yana06ts/platformer-game:${{ github.sha }}
+
+  # ЭТАП 5 (ЛР №5): автоматический деплой игры на GitHub Pages
+  deploy_to_pages:
+    needs: build_game
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # публикация в ветку gh-pages
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download WebGL Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: WebGL-Build
+          path: Builds/WebGL
+
+      # .nojekyll: GitHub Pages не должен обрабатывать файлы игры через Jekyll
+      - name: Disable Jekyll
+        run: touch Builds/WebGL/.nojekyll
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: Builds/WebGL
+          branch: gh-pages
