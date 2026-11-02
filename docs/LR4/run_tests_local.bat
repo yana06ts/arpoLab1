@@ -1,0 +1,10 @@
+@echo off
+set "PROJ=%~dp0..\.."
+set "OUT=%~dp0test-results\"
+set "UNITY=D:\apps\Unity\Unity Hub\6000.3.2f1\Editor\Unity.exe"
+echo running > "%OUT%status.txt"
+"%UNITY%" -batchmode -projectPath "%PROJ%" -runTests -testPlatform EditMode -testResults "%OUT%editmode-results.xml" -logFile "%OUT%editmode.log"
+echo editmode_exit=%ERRORLEVEL% >> "%OUT%status.txt"
+"%UNITY%" -batchmode -projectPath "%PROJ%" -runTests -testPlatform PlayMode -testResults "%OUT%playmode-results.xml" -logFile "%OUT%playmode.log"
+echo playmode_exit=%ERRORLEVEL% >> "%OUT%status.txt"
+echo done >> "%OUT%status.txt"

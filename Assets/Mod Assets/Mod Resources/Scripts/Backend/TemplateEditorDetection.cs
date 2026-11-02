@@ -16,7 +16,7 @@ public class TemplateEditorDetection : Editor {
         List<string> allDefineSymbols = currentDefineSymbols.Split(';').ToList();
 
         //Template core namespace classes used for detection
-        var platformer = System.Type.GetType("Platformer.Core.Simulation", false);
+        var platformer = System.Type.GetType("Platformer.Core.Simulation, GameAssembly", false) ?? System.Type.GetType("Platformer.Core.Simulation", false); // GameAssembly.asmdef (ЛР4)
         var kart = System.Type.GetType("KartGame.KartSystems.KartMovement", false);
         var ballgame = System.Type.GetType("TeamBallGame.Simulation", false);
 
