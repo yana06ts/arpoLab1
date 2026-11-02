@@ -107,7 +107,11 @@ GET /arpoLab1/TemplateData/*                → 200
 Console errors: нет
 ```
 
-**6. Docker-образ из GHCR.** Образ скачан из реестра и запущен локально на порту 8081. Nginx отдаёт файлы игры с `Content-Encoding: gzip` и правильным `Content-Type`. Полный вывод команд — в [docs/LR5/docker-check.txt](docs/LR5/docker-check.txt), фрагмент:
+**6. Docker-образ из GHCR.** Пакет `platformer-game` есть в Packages. Тег `latest` и тег с SHA указывают на один и тот же образ последнего коммита:
+
+![Пакет platformer-game в GHCR](docs/LR5/screenshots/07-ghcr-package.jpg)
+
+Образ скачан из реестра и запущен локально на порту 8081. Nginx отдаёт файлы игры с `Content-Encoding: gzip` и правильным `Content-Type`. Полный вывод команд — в [docs/LR5/docker-check.txt](docs/LR5/docker-check.txt), фрагмент:
 
 ```text
 --- curl -I -H "Accept-Encoding: gzip" http://localhost:8081/Build/WebGL.wasm.unityweb
