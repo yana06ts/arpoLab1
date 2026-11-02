@@ -23,7 +23,6 @@ jobs:
           echo "=== Проверка наличия метаданных Unity и файлов доставки ==="
           test -d ProjectSettings
           test -d Packages
-          test -d NoSuchFolder # LR6: deliberate failure to test Telegram alert
           test -f Assets/Editor/BuildManager.cs
           test -f Assets/Scripts/GameAssembly.asmdef
           test -f Assets/Tests/EditMode/Tests.asmdef
