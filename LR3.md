@@ -126,7 +126,7 @@ ghcr.io/yana06ts/platformer-game:<SHA коммита>
 
 ![GitHub Actions: три задачи ЛР3 зелёные](docs/LR3/screenshots/08-actions-lr3.jpg)
 
-Образ опубликован в GitHub Packages как `ghcr.io/yana06ts/platformer-game` с тегами `latest` и SHA коммита. Начиная с ЛР5 в него попадает настоящая игра вместо заглушек.
+Образ опубликован в GitHub Packages как `ghcr.io/yana06ts/platformer-game` с тегами `latest` и SHA коммита. Начиная с ЛР5 в него попадает настоящая игра вместо заглушек (скриншот пакета — в [LR5.md](LR5.md)).
 
 ## Как это работает простыми словами
 
