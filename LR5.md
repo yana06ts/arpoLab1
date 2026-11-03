@@ -1,18 +1,13 @@
-## 1. Настройки Unity для GitHub Pages
 
-Формат сжатия остался Gzip, включён Decompression Fallback. В ProjectSettings.asset это значения webGLCompressionFormat: 1 и webGLDecompressionFallback: 1. В Unity значение 1 означает Gzip, а 0 означает Brotli. GitHub Pages не отправляет заголовок Content-Encoding, поэтому файлы распаковывает встроенный в сборку JS-распаковщик Unity. При включённом Fallback файлы сборки называются .unityweb.
 
-## 2. Задача build_game
+## 1. Задача build_game
 
-После успешных тестов задача build_game собирает WebGL в контейнере через game-ci/unity-builder. Сборку выполняет метод BuildManager.BuildWebGL из ЛР1, версия Unity 6000.3.2f1. Готовая папка Builds/WebGL загружается в артефакт WebGL-Build.
+После успешных тестов задача build_game собирает WebGL в контейнере через game-ci/unity-builder. Сборку выполняет метод BuildManager.BuildWebGL. Готовая папка Builds/WebGL загружается в артефакт WebGL-Build.
 
 ![Задача build_game в main.yml](docs/LR5/screenshots/08-build-game-job.png)
 
-Файл BuildManager.cs переведён в кодировку UTF-8, чтобы русские сообщения читались в облачном логе. В логе видно, что сборку выполнил именно метод из ЛР1: сборка шла 703,68 с, её размер 20 380 970 байт.
 
-![Лог build_game: УСПЕХ](docs/LR5/screenshots/05-build-log-success.png)
-
-## 3. Docker-образ и GitHub Pages
+## 2. Docker-образ и GitHub Pages
 
 Задачи build_docker_image и deploy_to_pages скачивают артефакт WebGL-Build вместо заглушек из ЛР3. Первая собирает образ с Nginx и публикует его в GHCR. Вторая выкладывает игру в ветку gh-pages. В nginx.conf добавлены правила для файлов .unityweb с заголовком Content-Encoding: gzip.
 
@@ -22,9 +17,9 @@
 
 ![Пайплайн ЛР5](docs/LR5/screenshots/01-actions-pipeline.jpg)
 
-## 4. Результаты
+## 3. Результаты
 
-В ветке gh-pages лежат index.html, Build, TemplateData и .nojekyll. В папке Build настоящие файлы: WebGL.wasm.unityweb (12 МБ), WebGL.data.unityweb (8,2 МБ), WebGL.framework.js.unityweb и WebGL.loader.js.
+В ветке gh-pages лежат index.html, Build, TemplateData и .nojekyll. В папке Build настоящие файлы: WebGL.wasm.unityweb, WebGL.data.unityweb, WebGL.framework.js.unityweb и WebGL.loader.js.
 
 ![Ветка gh-pages](docs/LR5/screenshots/02-gh-pages-branch.jpg)
 
