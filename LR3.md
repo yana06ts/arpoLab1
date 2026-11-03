@@ -24,9 +24,7 @@
 
 ![Персонаж двигается](docs/LR3/screenshots/05-game-input.png)
 
-В инструментах разработчика у файла WebGL.wasm.gz видны заголовки Content-Encoding: gzip и Content-Type: application/wasm.
 
-![DevTools: Content-Encoding gzip](docs/LR3/screenshots/06-devtools-gzip.png)
 
 ## 5. Сборка образа в GitHub Actions
 
