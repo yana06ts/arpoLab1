@@ -1,5 +1,3 @@
-# Лабораторная работа №4. Автоматизация тестирования (Unity Test Runner) в CI/CD
-
 Индивидуальный вариант: 16. Механика PlayerEnteredVictoryZone, тип PlayMode: вход игрока в VictoryZone планирует событие.
 
 ## 1. Assembly Definitions

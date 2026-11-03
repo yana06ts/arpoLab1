@@ -1,5 +1,3 @@
-# Лабораторная работа №5. Автоматическая компиляция WebGL-игры в облаке и деплой на GitHub Pages
-
 ## 1. Настройки Unity для GitHub Pages
 
 Формат сжатия остался Gzip, включён Decompression Fallback. В ProjectSettings.asset это значения webGLCompressionFormat: 1 и webGLDecompressionFallback: 1. В Unity значение 1 означает Gzip, а 0 означает Brotli. GitHub Pages не отправляет заголовок Content-Encoding, поэтому файлы распаковывает встроенный в сборку JS-распаковщик Unity. При включённом Fallback файлы сборки называются .unityweb.
@@ -42,6 +40,6 @@ GitHub Pages включён один раз вручную: Settings, Pages, и�
 
 ![Пакет в GHCR](docs/LR5/screenshots/07-ghcr-package.jpg)
 
-Образ скачан из GHCR и запущен локально на порту 8081. Nginx отдаёт WebGL.wasm.unityweb с кодом 200, заголовками Content-Type: application/wasm и Content-Encoding: gzip. Полный вывод команд сохранён в файле docs/LR5/docker-check.txt.
+Образ скачан из GHCR и запущен локально на порту 8081. Nginx отдаёт WebGL.wasm.unityweb с кодом 200, заголовками Content-Type: application/wasm и Content-Encoding: gzip.
 
 ![Игра из Docker-контейнера](docs/LR5/screenshots/04-docker-game.jpg)

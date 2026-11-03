@@ -3,6 +3,7 @@ Library/
 Builds/
 obj/
 Logs/
+*.log
 Temp/
 UserSettings/
 

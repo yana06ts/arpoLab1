@@ -1,7 +1,3 @@
-# Лабораторная работа №3. Контейнеризация веб-сервера в Docker и раздача сжатых файлов через Nginx
-
-Проект: Unity 6000.3.2f1, 2D Platformer Microgame.
-
 ## 1. Сжатие Gzip в Unity
 
 В Player Settings для WebGL выбран формат сжатия Gzip, Decompression Fallback выключен. После пересборки командой из ЛР1 в папке Builds/WebGL/Build появились файлы WebGL.framework.js.gz, WebGL.wasm.gz и WebGL.data.gz. Три основных файла уменьшились с 64,7 МБ до 20,3 МБ, примерно в 3,2 раза.

@@ -1,5 +1,3 @@
-# Лабораторная работа №6. Мониторинг пайплайна, webhooks и Telegram-оповещения
-
 ## 1. Telegram-бот
 
 Бот yana06tsbot создан через BotFather командой /newbot. В чате с ботом отправлен /start. Идентификатор чата получен запросом getUpdates к Telegram Bot API.
