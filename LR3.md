@@ -12,13 +12,13 @@
 
 ## 3. Dockerfile
 
-Образ собирается на основе nginx:alpine. Стандартная конфигурация удаляется, копируются свой nginx.conf и файлы игры из Builds/WebGL в /usr/share/nginx/html, открывается порт 80.
+Образ собирается на основе nginx:alpine. Стандартная конфигурация удаляется, копируются свой nginx.conf и файлы игры из Builds/WebGL в /usr/share/nginx/html, открывается порт 81.
 
 ![Dockerfile](docs/LR3/screenshots/03-dockerfile.png)
 
 ## 4. Локальная проверка контейнера
 
-Образ собран командой docker build -t platformer-compressed:v1 . и запущен командой docker run -d -p 127.0.0.1:8081:80. Порт 8080 занят другим сервером, поэтому используется 8081. Игра открывается по адресу localhost:8081, персонаж управляется с клавиатуры.
+Образ собран командой docker build -t platformer-compressed:v1 . и запущен командой docker run -d -p 127.0.0.1:8081:80. Игра открывается по адресу localhost:8081, персонаж управляется с клавиатуры.
 
 ![Игра запущена из контейнера](docs/LR3/screenshots/04-game.png)
 
@@ -38,4 +38,4 @@
 
 ![GitHub Actions: три задачи зелёные](docs/LR3/screenshots/08-actions-lr3.jpg)
 
-Образ ghcr.io/yana06ts/platformer-game опубликован в GitHub Packages. Начиная с ЛР5 в него вместо заглушек попадает настоящая игра.
+
