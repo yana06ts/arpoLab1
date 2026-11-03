@@ -24,7 +24,6 @@
 
 ![Код теста варианта 16](docs/LR4/screenshots/05-variant16-test.png)
 
-Локальный запуск в Unity 6000.3.2f1: EditMode 1 из 1, PlayMode 3 из 3. Результат теста по варианту: Passed.
 
 ## 3. Запуск тестов в GitHub Actions
 
